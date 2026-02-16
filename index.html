@@ -42,6 +42,13 @@ body{
   100%{transform:scale(1)}
 }
 
+/* typing text */
+.type{
+  font-size:18px;
+  margin-top:15px;
+  min-height:24px;
+}
+
 /* big clouds */
 .cloud{
   position:absolute;font-size:140px;cursor:grab;
@@ -79,9 +86,9 @@ button{cursor:pointer}
 
 <body>
 
-<!-- 🎵 Background Music -->
+<!-- 🎵 Your Music -->
 <audio id="bgMusic" loop>
-  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">
+  <source src="https://raw.githubusercontent.com/CreativeThinking123/priya/main/priya.mp3" type="audio/mpeg">
 </audio>
 
 <!-- clouds -->
@@ -130,8 +137,6 @@ function unlock(){
  <p>Breathe in… breathe out…</p>
  <small>Pull a cloud and let rain carry heaviness away ☁️🌧️</small>
  `;
-
- /* play music after unlock (browser rule) */
  document.getElementById("bgMusic").play();
 }
 
@@ -165,26 +170,24 @@ function rain(x, cloudId){
  showMsg(cloudId);
 }
 
-/* messages per cloud */
+/* quotes per cloud */
 function showMsg(cloudId){
  const p=document.getElementById("popup");
 
  const cloud1=[
-  "It’s okay to feel low… you don’t have to be strong always 🤍",
-  "Some feelings need rain to pass ☁️",
-  "Breathe slowly… you're safe 💛"
+  "It’s okay to feel low… 🤍",
+  "Let rain carry heaviness away ☁️",
+  "Breathe slowly… 💛"
  ];
-
  const cloud2=[
   "You are stronger than this moment 💪",
-  "Storms don’t last forever 🌧️",
+  "Storms pass… 🌧️",
   "You’ve survived every hard day ✨"
  ];
-
  const cloud3=[
   "Distance far… hearts near 💛",
-  "Someone quietly wishes for your smile 🤍",
-  "Sankar is always there for you 💛"
+  "Someone cares for your smile 🤍",
+  "Sankar is always there 💛"
  ];
 
  let msg;
@@ -194,18 +197,26 @@ function showMsg(cloudId){
 
  if(rainCount>=5){
    document.getElementById("center").innerHTML=`
-   <h2>Hey… look 💛</h2>
-   <p>
-   Dark nights don’t last forever.<br>
-   You are growing, healing, becoming stronger.<br><br>
-   <b>Sankar is always there for you 💛</b><br><br>
-   Smile… slowly 😊
-   </p>`;
+   <h2>Hey… 💛</h2>
+   <div class="type" id="type"></div>
+   `;
+   typeText("Don’t be sad… your beloved ones are there for you 💛");
  }
 
  p.innerText=msg;
  p.classList.add("show");
  setTimeout(()=>p.classList.remove("show"),2600);
+}
+
+/* typing effect */
+function typeText(text){
+ let i=0;
+ const el=document.getElementById("type");
+ const timer=setInterval(()=>{
+   el.innerText+=text.charAt(i);
+   i++;
+   if(i>=text.length) clearInterval(timer);
+ },40);
 }
 </script>
 
