@@ -42,16 +42,10 @@ body{
   100%{transform:scale(1)}
 }
 
-/* typing text */
-.type{
-  font-size:18px;
-  margin-top:15px;
-  min-height:24px;
-}
-
-/* big clouds */
+/* clouds */
 .cloud{
   position:absolute;font-size:140px;cursor:grab;
+  pointer-events:none; /* disabled until unlock */
 }
 #c1{top:80px;animation:move1 40s linear infinite}
 #c2{top:160px;animation:move2 55s linear infinite}
@@ -77,17 +71,22 @@ body{
 }
 .show{opacity:1}
 
-input,button{
-  padding:8px;border-radius:8px;border:none;text-align:center;
+/* final icon */
+#finalIcon{
+  position:fixed;
+  bottom:30px;
+  right:30px;
+  font-size:28px;
+  cursor:pointer;
+  display:none;
 }
-button{cursor:pointer}
 </style>
 </head>
 
 <body>
 
-<!-- 🎵 Your Music -->
-<audio id="bgMusic" loop>
+<!-- 🎵 YOUR SONG -->
+<audio id="bgMusic">
   <source src="https://raw.githubusercontent.com/CreativeThinking123/priya/main/priya.mp3" type="audio/mpeg">
 </audio>
 
@@ -98,19 +97,19 @@ button{cursor:pointer}
 
 <!-- center -->
 <div class="center" id="center">
-  <div id="lock">
-    <h2>Hey Priya 💛</h2>
-    <p>Small question to open this world…</p>
-    <p><b>Who is Sankar?</b></p>
-
-    <input id="answer" placeholder="Type your answer...">
-    <br><br>
-    <button onclick="checkAnswer()">Unlock ✨</button>
-    <p id="hint" style="opacity:.7;font-size:13px"></p>
-  </div>
+  <h2>Hey Priya 💛</h2>
+  <p>Small question to open this world…</p>
+  <p><b>Who is Sankar?</b></p>
+  <input id="answer" placeholder="Type your answer...">
+  <br><br>
+  <button onclick="checkAnswer()">Unlock ✨</button>
+  <p id="hint" style="opacity:.7;font-size:13px"></p>
 </div>
 
 <div class="popup" id="popup"></div>
+
+<!-- final icon -->
+<div id="finalIcon" onclick="showFinal()">💛</div>
 
 <script>
 /* stars */
@@ -123,42 +122,39 @@ for(let i=0;i<150;i++){
 }
 
 /* unlock */
+let unlocked=false;
 function checkAnswer(){
  let ans=document.getElementById("answer").value.toLowerCase().trim();
- if(ans==="family") unlock();
+ if(ans==="family"){
+   unlocked=true;
+   document.querySelectorAll(".cloud").forEach(c=>c.style.pointerEvents="auto");
+   document.getElementById("center").innerHTML=`
+   <h2>Hey Priya 💛</h2>
+   <div class="breath"></div>
+   <p>Pull a cloud… let rain carry heaviness away ☁️🌧️</p>
+   `;
+   document.getElementById("bgMusic").play();
+ }
  else document.getElementById("hint").innerText="Hint: Not friend… closer than that 💛";
-}
-
-function unlock(){
- document.getElementById("center").innerHTML=`
- <h2>Hey Priya 💛</h2>
- <p>Let’s slow down together…</p>
- <div class="breath"></div>
- <p>Breathe in… breathe out…</p>
- <small>Pull a cloud and let rain carry heaviness away ☁️🌧️</small>
- `;
- document.getElementById("bgMusic").play();
 }
 
 /* drag cloud */
 let dragging=null;
 document.querySelectorAll(".cloud").forEach(c=>{
- c.onmousedown=()=>dragging=c;
+ c.onmousedown=()=>{ if(unlocked) dragging=c; };
 });
 document.onmouseup=()=>dragging=null;
-
-let rainCount=0;
 
 document.onmousemove=(e)=>{
  if(dragging){
    dragging.style.top=e.clientY+"px";
-   if(e.clientY>220) rain(e.clientX, dragging.id);
+   if(e.clientY>220) rain(e.clientX);
  }
 };
 
 /* rain */
-function rain(x, cloudId){
- for(let i=0;i<80;i++){
+function rain(x){
+ for(let i=0;i<70;i++){
   let d=document.createElement("div");
   d.className="drop";
   d.style.left=(x+Math.random()*120-60)+"px";
@@ -166,57 +162,21 @@ function rain(x, cloudId){
   document.body.appendChild(d);
   setTimeout(()=>d.remove(),900);
  }
- rainCount++;
- showMsg(cloudId);
 }
 
-/* quotes per cloud */
-function showMsg(cloudId){
- const p=document.getElementById("popup");
+/* when song ends → show icon */
+document.getElementById("bgMusic").onended=function(){
+ document.getElementById("finalIcon").style.display="block";
+};
 
- const cloud1=[
-  "It’s okay to feel low… 🤍",
-  "Let rain carry heaviness away ☁️",
-  "Breathe slowly… 💛"
- ];
- const cloud2=[
-  "You are stronger than this moment 💪",
-  "Storms pass… 🌧️",
-  "You’ve survived every hard day ✨"
- ];
- const cloud3=[
-  "Distance far… hearts near 💛",
-  "Someone cares for your smile 🤍",
-  "Sankar is always there 💛"
- ];
-
- let msg;
- if(cloudId==="c1") msg=cloud1[Math.floor(Math.random()*cloud1.length)];
- else if(cloudId==="c2") msg=cloud2[Math.floor(Math.random()*cloud2.length)];
- else msg=cloud3[Math.floor(Math.random()*cloud3.length)];
-
- if(rainCount>=5){
-   document.getElementById("center").innerHTML=`
-   <h2>Hey… 💛</h2>
-   <div class="type" id="type"></div>
-   `;
-   typeText("Don’t be sad… your beloved ones are there for you 💛");
- }
-
- p.innerText=msg;
- p.classList.add("show");
- setTimeout(()=>p.classList.remove("show"),2600);
-}
-
-/* typing effect */
-function typeText(text){
- let i=0;
- const el=document.getElementById("type");
- const timer=setInterval(()=>{
-   el.innerText+=text.charAt(i);
-   i++;
-   if(i>=text.length) clearInterval(timer);
- },40);
+/* final message */
+function showFinal(){
+ document.getElementById("center").innerHTML=`
+ <h2>💛</h2>
+ <p style="font-size:18px">
+ Don’t be sad… your beloved ones are there for you 💛
+ </p>
+ `;
 }
 </script>
 
