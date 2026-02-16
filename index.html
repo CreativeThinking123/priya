@@ -20,24 +20,14 @@ body{
 .star{position:absolute;width:2px;height:2px;background:white;opacity:.8;animation:twinkle 3s infinite alternate;}
 @keyframes twinkle{from{opacity:.3}to{opacity:1}}
 
-.center{
-  position:absolute;top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  text-align:center;
-  line-height:1.7;
-}
+.center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;line-height:1.7}
 
-/* meditation */
-.breath{
-  width:90px;height:90px;border-radius:50%;
-  border:2px solid rgba(255,255,255,.3);
-  margin:20px auto;
-  animation:breathe 4s infinite;
-}
+/* breathing */
+.breath{width:90px;height:90px;border-radius:50%;border:2px solid rgba(255,255,255,.3);margin:20px auto;animation:breathe 4s infinite;}
 @keyframes breathe{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
 
 /* clouds */
-.cloud{position:absolute;font-size:140px;cursor:grab;pointer-events:none;}
+.cloud{position:absolute;font-size:140px;cursor:grab;pointer-events:none;touch-action:none;}
 #c1{top:80px;animation:move1 40s linear infinite}
 #c2{top:160px;animation:move2 55s linear infinite}
 #c3{top:30px;animation:move3 65s linear infinite}
@@ -62,9 +52,8 @@ body{
 #envelope.show{transform:translate(-50%,-50%) scale(1)}
 
 /* postcard */
-#postCard{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);width:340px;background:#fff;color:#333;padding:22px;border-radius:10px;box-shadow:0 14px 40px rgba(0,0,0,.5);transition:.4s;text-align:center;cursor:grab;}
+#postCard{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);width:340px;background:#fff;color:#333;padding:22px;border-radius:10px;box-shadow:0 14px 40px rgba(0,0,0,.5);transition:.4s;text-align:center;cursor:grab;touch-action:none;}
 #postCard.show{transform:translate(-50%,-50%) scale(1)}
-#postCard:active{cursor:grabbing}
 
 /* flowers */
 .flower{position:fixed;font-size:18px;pointer-events:none;animation:fall 1.2s linear forwards;}
@@ -104,7 +93,6 @@ button{cursor:pointer}
 </div>
 
 <script>
-/* stars */
 for(let i=0;i<150;i++){
  let s=document.createElement("div");
  s.className="star";
@@ -113,7 +101,7 @@ for(let i=0;i<150;i++){
  document.body.appendChild(s);
 }
 
-let unlocked=false, dragging=null, meditationGone=false;
+let unlocked=false,dragging=null;
 
 function unlock(){
  if(document.getElementById("answer").value.toLowerCase().trim()!=="family") return;
@@ -127,17 +115,23 @@ function unlock(){
  document.getElementById("bgMusic").play();
 }
 
+/* CLOUD DRAG — MOBILE + PC */
 document.querySelectorAll(".cloud").forEach(c=>{
- c.onmousedown=()=>{ if(unlocked) dragging=c; };
+ c.addEventListener("mousedown",()=>{ if(unlocked) dragging=c; });
+ c.addEventListener("touchstart",()=>{ if(unlocked) dragging=c; });
 });
-document.onmouseup=()=>dragging=null;
+document.addEventListener("mouseup",()=>dragging=null);
+document.addEventListener("touchend",()=>dragging=null);
 
-document.onmousemove=e=>{
+document.addEventListener("mousemove",e=>move(e.clientY,e.clientX));
+document.addEventListener("touchmove",e=>move(e.touches[0].clientY,e.touches[0].clientX));
+
+function move(y,x){
  if(dragging){
-   dragging.style.top=e.clientY+"px";
-   rain(e.clientX,dragging.id);
+   dragging.style.top=y+"px";
+   rain(x,dragging.id);
  }
-};
+}
 
 function rain(x,id){
  for(let i=0;i<40;i++){
@@ -169,7 +163,7 @@ document.getElementById("envelope").onclick=()=>{
  document.getElementById("postCard").classList.add("show");
 };
 
-/* ===== CARD DRAG + FLOWERS ===== */
+/* CARD DRAG MOBILE + PC */
 (function(){
  const card=document.getElementById("postCard");
  let drag=false,ox=0,oy=0;
@@ -195,6 +189,10 @@ document.getElementById("envelope").onclick=()=>{
  card.addEventListener("mousedown",e=>start(e.clientX,e.clientY));
  document.addEventListener("mousemove",e=>move(e.clientX,e.clientY));
  document.addEventListener("mouseup",stop);
+
+ card.addEventListener("touchstart",e=>start(e.touches[0].clientX,e.touches[0].clientY));
+ document.addEventListener("touchmove",e=>move(e.touches[0].clientX,e.touches[0].clientY));
+ document.addEventListener("touchend",stop);
 })();
 </script>
 </body>
