@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
 <title>For Priya 💛</title>
 
 <style>
@@ -10,30 +11,33 @@ body{
   margin:0;
   overflow:hidden;
   height:100vh;
-  font-family:"Segoe UI",sans-serif;
-  background: radial-gradient(circle at center,#0b1026,#000);
-  color:white;
+  font-family:'Poppins',sans-serif;
+  background: radial-gradient(circle at center,#0f1635,#000);
+  color:#f4f4f4;
 }
 
 /* stars */
-.star{
-  position:absolute;width:2px;height:2px;background:white;
-  animation:twinkle 2s infinite alternate;
-}
-@keyframes twinkle{from{opacity:.2}to{opacity:1}}
+.star{position:absolute;width:2px;height:2px;background:white;opacity:.8;animation:twinkle 3s infinite alternate;}
+@keyframes twinkle{from{opacity:.3}to{opacity:1}}
 
-/* center */
 .center{
   position:absolute;top:50%;left:50%;
   transform:translate(-50%,-50%);
   text-align:center;
+  line-height:1.7;
 }
 
-/* clouds */
-.cloud{
-  position:absolute;font-size:140px;cursor:grab;
-  pointer-events:none;
+/* meditation */
+.breath{
+  width:90px;height:90px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.3);
+  margin:20px auto;
+  animation:breathe 4s infinite;
 }
+@keyframes breathe{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+
+/* clouds */
+.cloud{position:absolute;font-size:140px;cursor:grab;pointer-events:none;}
 #c1{top:80px;animation:move1 40s linear infinite}
 #c2{top:160px;animation:move2 55s linear infinite}
 #c3{top:30px;animation:move3 65s linear infinite}
@@ -42,61 +46,62 @@ body{
 @keyframes move3{from{left:-250px}to{left:110%}}
 
 /* rain */
-.drop{
-  position:absolute;width:2px;height:14px;background:#7ecbff;
-  animation:rain linear forwards;
-}
+.drop{position:absolute;width:2px;height:14px;background:#7ecbff;opacity:.7;animation:rain .9s linear forwards;}
 @keyframes rain{from{transform:translateY(0)}to{transform:translateY(100vh);opacity:0}}
 
 /* popup */
-.popup{
-  position:fixed;bottom:40px;left:50%;
-  transform:translateX(-50%);
-  background:rgba(0,0,0,.6);
-  padding:14px 22px;border-radius:30px;
-  opacity:0;transition:.4s;
-}
-.show{opacity:1}
+.popup{position:fixed;bottom:44px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.5);padding:10px 18px;border-radius:22px;font-size:13px;opacity:0;transition:.3s;}
+.popup.show{opacity:1}
 
 /* post box */
-#postBox{
-  position:fixed;
-  bottom:30px;
-  right:30px;
-  font-size:30px;
-  cursor:pointer;
-  display:none;
-}
+#postBox{position:fixed;bottom:36px;right:36px;font-size:64px;cursor:pointer;display:none;}
+#postText{position:fixed;bottom:114px;right:40px;font-size:13px;display:none}
+
+/* envelope */
+#envelope{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);width:280px;height:180px;background:#eee;border-radius:6px;transition:.4s;cursor:pointer;}
+#envelope.show{transform:translate(-50%,-50%) scale(1)}
+
+/* postcard */
+#postCard{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);width:340px;background:#fff;color:#333;padding:22px;border-radius:10px;box-shadow:0 14px 40px rgba(0,0,0,.5);transition:.4s;text-align:center;cursor:grab;}
+#postCard.show{transform:translate(-50%,-50%) scale(1)}
+#postCard:active{cursor:grabbing}
+
+/* flowers */
+.flower{position:fixed;font-size:18px;pointer-events:none;animation:fall 1.2s linear forwards;}
+@keyframes fall{from{transform:translateY(0)}to{transform:translateY(140px);opacity:0}}
+
+input,button{font-family:'Poppins',sans-serif;padding:8px;border-radius:6px;border:none}
+button{cursor:pointer}
 </style>
 </head>
 
 <body>
 
-<!-- 🎵 YOUR SONG -->
 <audio id="bgMusic">
   <source src="https://raw.githubusercontent.com/CreativeThinking123/priya/main/priya.mp3" type="audio/mpeg">
 </audio>
 
-<!-- clouds -->
 <div id="c1" class="cloud">☁️</div>
 <div id="c2" class="cloud">☁️</div>
 <div id="c3" class="cloud">☁️</div>
 
-<!-- center -->
 <div class="center" id="center">
   <h2>Hey Priya 💛</h2>
-  <p>Small question to open this world…</p>
   <p><b>Who is Sankar?</b></p>
-  <input id="answer" placeholder="Type your answer...">
+  <input id="answer">
   <br><br>
-  <button onclick="checkAnswer()">Unlock ✨</button>
-  <p id="hint" style="opacity:.7;font-size:13px"></p>
+  <button onclick="unlock()">Unlock ✨</button>
 </div>
 
 <div class="popup" id="popup"></div>
+<div id="postText">📩 You have a new post</div>
+<div id="postBox">📮</div>
+<div id="envelope"></div>
 
-<!-- 📮 Post Box -->
-<div id="postBox" onclick="showFinal()">📮</div>
+<div id="postCard">
+  <h3>For You, Priya 💛</h3>
+  <p>Don’t be sad…<br>Your beloved ones are there for you 🫂<br><br>— Sankar</p>
+</div>
 
 <script>
 /* stars */
@@ -108,74 +113,89 @@ for(let i=0;i<150;i++){
  document.body.appendChild(s);
 }
 
-/* unlock */
-let unlocked=false;
-function checkAnswer(){
- let ans=document.getElementById("answer").value.toLowerCase().trim();
- if(ans==="family"){
-   unlocked=true;
-   document.querySelectorAll(".cloud").forEach(c=>c.style.pointerEvents="auto");
-   document.getElementById("center").innerHTML="<h2>Pull a cloud ☁️</h2>";
-   document.getElementById("bgMusic").play();
- }
- else document.getElementById("hint").innerText="Hint: Not friend… closer than that 💛";
+let unlocked=false, dragging=null, meditationGone=false;
+
+function unlock(){
+ if(document.getElementById("answer").value.toLowerCase().trim()!=="family") return;
+ unlocked=true;
+ document.querySelectorAll(".cloud").forEach(c=>c.style.pointerEvents="auto");
+ document.getElementById("center").innerHTML=`
+ <h2>Hey Priya 💛</h2>
+ <p>Take a slow breath…</p>
+ <div class="breath"></div>
+ <p style="opacity:.8"><b>Drag a cloud down to release the rain ☁️🌧️</b></p>`;
+ document.getElementById("bgMusic").play();
 }
 
-/* drag cloud */
-let dragging=null;
 document.querySelectorAll(".cloud").forEach(c=>{
  c.onmousedown=()=>{ if(unlocked) dragging=c; };
 });
 document.onmouseup=()=>dragging=null;
 
-document.onmousemove=(e)=>{
+document.onmousemove=e=>{
  if(dragging){
    dragging.style.top=e.clientY+"px";
-   if(e.clientY>220) rain(e.clientX, dragging.id);
+   rain(e.clientX,dragging.id);
  }
 };
 
-/* rain + different quotes */
-function rain(x, cloudId){
- for(let i=0;i<60;i++){
+function rain(x,id){
+ for(let i=0;i<40;i++){
   let d=document.createElement("div");
   d.className="drop";
-  d.style.left=(x+Math.random()*120-60)+"px";
-  d.style.animationDuration=(Math.random()*0.6+0.6)+"s";
+  d.style.left=(x+Math.random()*80-40)+"px";
   document.body.appendChild(d);
   setTimeout(()=>d.remove(),900);
  }
-
- const quotes={
-   c1:"It’s okay to feel low… you don’t have to be strong always 🤍",
-   c2:"You are stronger than this moment 💪",
-   c3:"Distance far… hearts near — Sankar is there 💛"
- };
-
- showPopup(quotes[cloudId]);
+ const quotes={c1:"It’s okay to feel low 🤍",c2:"You are stronger 💪",c3:"Hearts stay close — Sankar 💛"};
+ showPopup(quotes[id]);
 }
 
-function showPopup(text){
- const p=document.getElementById("popup");
- p.innerText=text;
+function showPopup(t){
+ let p=document.getElementById("popup");
+ p.innerText=t;
  p.classList.add("show");
- setTimeout(()=>p.classList.remove("show"),2600);
+ setTimeout(()=>p.classList.remove("show"),2000);
 }
 
-/* show post box after song ends */
-document.getElementById("bgMusic").onended=function(){
+document.getElementById("bgMusic").onended=()=>{
  document.getElementById("postBox").style.display="block";
+ document.getElementById("postText").style.display="block";
 };
 
-/* final message */
-function showFinal(){
- document.getElementById("center").innerHTML=`
- <h2>💛</h2>
- <p style="font-size:18px">
- Don’t be sad… Your beloved ones are there for you 🫂
- </p>`;
-}
-</script>
+document.getElementById("postBox").onclick=()=>document.getElementById("envelope").classList.add("show");
+document.getElementById("envelope").onclick=()=>{
+ document.getElementById("envelope").classList.remove("show");
+ document.getElementById("postCard").classList.add("show");
+};
 
+/* ===== CARD DRAG + FLOWERS ===== */
+(function(){
+ const card=document.getElementById("postCard");
+ let drag=false,ox=0,oy=0;
+
+ function start(x,y){drag=true;ox=x-card.offsetLeft;oy=y-card.offsetTop;}
+ function move(x,y){
+  if(!drag) return;
+  card.style.left=(x-ox)+"px";
+  card.style.top=(y-oy)+"px";
+  card.style.transform="translate(0,0) scale(1)";
+  for(let i=0;i<3;i++){
+   let f=document.createElement("div");
+   f.className="flower";
+   f.innerText="🌸";
+   f.style.left=(x+Math.random()*20-10)+"px";
+   f.style.top=(y+Math.random()*10-5)+"px";
+   document.body.appendChild(f);
+   setTimeout(()=>f.remove(),1200);
+  }
+ }
+ function stop(){drag=false;}
+
+ card.addEventListener("mousedown",e=>start(e.clientX,e.clientY));
+ document.addEventListener("mousemove",e=>move(e.clientX,e.clientY));
+ document.addEventListener("mouseup",stop);
+})();
+</script>
 </body>
 </html>
